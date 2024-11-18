@@ -638,16 +638,16 @@ Data    Segment
     p1_score db 0
     p2_score db 0
     
-    p1_x    dw 150
-    p1_y    dw 100
+    p1_x    dw 0
+    p1_y    dw 0
 
-    p2_x    dw 170
-    p2_y    dw 100
+    p2_x    dw 0
+    p2_y    dw 0
 
-    p1_vx   db 1
+    p1_vx   db 0
     p1_vy   db 0
     
-    p2_vx   db -1
+    p2_vx   db 0
     p2_vy   db 0
 Data    Ends
 
