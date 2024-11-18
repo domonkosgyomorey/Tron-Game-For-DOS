@@ -5,6 +5,20 @@ MENU_MSG1_X equ 10
 MENU_MSG1_Y equ 10
 MENU_MSG2_X equ 10
 MENU_MSG2_Y equ 11
+MENU_MSG3_X equ 10
+MENU_MSG3_Y equ 12
+
+HELP_MENU_MSG1_X equ 0
+HELP_MENU_MSG1_Y equ 5
+
+HELP_MENU_MSG2_X equ 0
+HELP_MENU_MSG2_Y equ 6
+
+HELP_MENU_RULES_X equ 0
+HELP_MENU_RULES_Y equ 8
+
+HELP_MENU_BACK_X equ 0
+HELP_MENU_BACK_Y equ 10
 
 P1C equ 39
 P1_TRAIL_C equ 41
@@ -69,9 +83,22 @@ MenuLoop:
     cmp al, '1'
     je Game
     cmp al, '2'
+    je Help
+    cmp al, '3'
     je ExitGame
     
     jmp MenuLoop
+
+Help:
+    call WriteHelp
+
+    xor ax, ax
+    int 16h
+
+    cmp al, '1'
+    je MenuLoop
+    
+    jmp Help
 
 ExitGame:       
     mov ah, CONSOLE_VID_MOD
@@ -140,7 +167,6 @@ GameLoop:
     call Player1Draw
     call Player2Draw
     jmp GameLoop
-
 
 
 Input:      
@@ -531,14 +557,70 @@ WriteMenu:
     mov ah, PRINT_STR_FN
     mov dx, offset menumsg2
     int 21h
+
+    mov ah, POS_FN
+    xor bx, bx
+    mov dl, MENU_MSG3_X
+    mov dh, MENU_MSG3_Y
+    int 10h
+    
+    mov ah, PRINT_STR_FN
+    mov dx, offset menumsg3
+    int 21h
     ret
 
+WriteHelp:
+    mov ax, CONSOLE_VID_MOD
+    int 10h
+
+    mov ah, POS_FN
+    xor bx, bx
+    mov dl, HELP_MENU_MSG1_X
+    mov dh, HELP_MENU_MSG1_Y
+    int 10h
+
+    mov ah, PRINT_STR_FN
+    mov dx, offset helpmsg_1
+    int 21h
+
+    mov ah, POS_FN
+    xor bx, bx
+    mov dl, HELP_MENU_MSG2_X
+    mov dh, HELP_MENU_MSG2_Y
+    int 10h
+
+    mov ah, PRINT_STR_FN
+    mov dx, offset helpmsg_2
+    int 21h
+
+    mov ah, POS_FN
+    xor bx, bx
+    mov dl, HELP_MENU_RULES_X
+    mov dh, HELP_MENU_RULES_Y
+    int 10h
+
+    mov ah, PRINT_STR_FN
+    mov dx, offset rules_msg
+    int 21h
+
+    mov ah, POS_FN
+    xor bx, bx
+    mov dl, HELP_MENU_BACK_X
+    mov dh, HELP_MENU_BACK_Y
+    int 10h
+
+    mov ah, PRINT_STR_FN
+    mov dx, offset back_msg
+    int 21h
+
+    ret
 
 Code    Ends
 
 Data    Segment
     menumsg1 db "(1) Play$"
-    menumsg2 db "(2) Exit$"
+    menumsg2 db "(2) Help$"
+    menumsg3 db "(3) Exit$"
     
     p1_won db "Red Won$"
     p2_won db "Blue Won$"
@@ -548,6 +630,11 @@ Data    Segment
     
     press_key2c db "Press space to continue...$"
     
+    helpmsg_1 db "Red player controll ( arrows ).$"
+    helpmsg_2 db "Blue player controll ( w, a, s, d ).$"
+    rules_msg db "Don't collide with wall and don't collide with any trail.$"
+    back_msg  db "(1) Back.$"
+
     p1_score db 0
     p2_score db 0
     
