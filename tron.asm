@@ -205,16 +205,16 @@ MenuLoop__:
     jmp MenuLoop
 
 Player1Left:
-    cmp p1_vx, 1
+    cmp p1_vx, MOVE_SPEED
     je  InputRet
-    mov p1_vx, -1
+    mov p1_vx, -MOVE_SPEED
     mov p1_vy, 0
     ret
     
 Player1Right:
-    cmp p1_vx, -1
+    cmp p1_vx, -MOVE_SPEED
     je  InputRet
-    mov p1_vx, 1
+    mov p1_vx, MOVE_SPEED
     mov p1_vy, 0
     ret
 
@@ -287,7 +287,7 @@ WaitLoop:
 MenuLoop_:
     jmp MenuLoop__
 
-; Egyszerűség kedvéért használtam convert byte to word-et
+; Egyszerűség kedvéért használtam convert byte to word-et ( előjelmegtartás miatt is )
 UpdatePlayers:
 
     ; P1 pozicio frissit
