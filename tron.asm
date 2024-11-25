@@ -54,6 +54,9 @@ WINNER_MSG_Y_OFFSET equ 4
 SCORE_MSG_X_OFFSET equ 17
 SCORE_MSG_Y_OFFSET equ 2
 
+POS_FN_ROW_REG equ dh
+POS_FN_COL_REG equ dl
+
 RED_BLUE_MSG_X_OFFSET equ 15
 RED_BLUE_MSG_Y_OFFSET equ 0
 
@@ -123,6 +126,7 @@ Game:
     mov p2_vx, 1
     mov p2_vy, 0
 
+; Falak rajzolasa
 mov al, WALL_C
 mov di, 0
 draw_up_edge_l:
@@ -161,11 +165,16 @@ ExitGame_:
 GameLoop:
     call Wait  
     call Input
+
+    ; Emiatt nem kell elmenteni az elozo poziciot
     call Player1DrawTrail
     call Player2DrawTrail 
+    
     call UpdatePlayers
+    
     call Player1Draw
     call Player2Draw
+    
     jmp GameLoop
 
 
@@ -298,6 +307,12 @@ UpdatePlayers:
     cbw
     add p1_y, ax
 
+    mov ax, p1_y
+    mov bx, SCREEN_WIDTH
+    mul ax
+    add ax, p1_x
+    push ax
+
     ; P2 pozicio frissit
     mov al, p2_vx
     cbw
@@ -306,12 +321,6 @@ UpdatePlayers:
     mov al, p2_vy
     cbw
     add p2_y, ax
-
-    mov ax, p1_y
-    mov bx, SCREEN_WIDTH
-    mul ax
-    add ax, p1_x
-    push ax
     
     mov ax, p2_y
     mov bx, SCREEN_WIDTH
@@ -319,6 +328,7 @@ UpdatePlayers:
     add ax, p2_x
     pop bx
 
+    ; ha ugyanott vannak a mozgasok utan, akkor dontetlen
     cmp ax, bx
     je  draw__
 
@@ -466,8 +476,8 @@ draw:
     int 10h
     
     mov ah, POS_FN
-    mov dh, WINNER_MSG_Y_OFFSET
-    mov dl, WINNER_MSG_X_OFFSET
+    mov POS_FN_ROW_REG, WINNER_MSG_Y_OFFSET
+    mov POS_FN_COL_REG, WINNER_MSG_X_OFFSET
     int 10h
 
     mov dx, offset draw_msg
@@ -481,8 +491,8 @@ MenuLoop___:
 
 Print_after_loss:
     mov ah, POS_FN
-    mov dh, RED_BLUE_MSG_Y_OFFSET
-    mov dl, RED_BLUE_MSG_X_OFFSET
+    mov POS_FN_ROW_REG, RED_BLUE_MSG_Y_OFFSET
+    mov POS_FN_COL_REG, RED_BLUE_MSG_X_OFFSET
     int 10h
     
     mov ah, 9
@@ -490,8 +500,8 @@ Print_after_loss:
     int 21h
 
     mov ah, POS_FN
-    mov dh, SCORE_MSG_Y_OFFSET
-    mov dl, SCORE_MSG_X_OFFSET
+    mov POS_FN_ROW_REG, SCORE_MSG_Y_OFFSET
+    mov POS_FN_COL_REG, SCORE_MSG_X_OFFSET
     int 10h
     
     mov ah, PRINT_CHR_FN
@@ -500,8 +510,8 @@ Print_after_loss:
     int 21h
 
     mov ah, POS_FN
-    mov dh, SCORE_MSG_Y_OFFSET
-    mov dl, SCORE_MSG_X_OFFSET+2
+    mov POS_FN_ROW_REG, SCORE_MSG_Y_OFFSET
+    mov POS_FN_COL_REG, SCORE_MSG_X_OFFSET+2
     int 10h
 
     mov ah, PRINT_CHR_FN
@@ -509,8 +519,8 @@ Print_after_loss:
     int 21h
 
     mov ah, POS_FN
-    mov dh, SCORE_MSG_Y_OFFSET
-    mov dl, SCORE_MSG_X_OFFSET+4
+    mov POS_FN_ROW_REG, SCORE_MSG_Y_OFFSET
+    mov POS_FN_COL_REG, SCORE_MSG_X_OFFSET+4
     int 10h
 
     mov ah, PRINT_CHR_FN
@@ -519,8 +529,8 @@ Print_after_loss:
     int 21h
     
     mov ah, POS_FN
-    mov dh, CONTINUE_MSG_Y_OFFSET
-    mov dl, CONTINUE_MSG_X_OFFSET
+    mov POS_FN_ROW_REG, CONTINUE_MSG_Y_OFFSET
+    mov POS_FN_COL_REG, CONTINUE_MSG_X_OFFSET
     int 10h
     
     mov ah, PRINT_STR_FN
@@ -540,8 +550,8 @@ WriteMenu:
     
     mov ah, POS_FN
     xor bx, bx
-    mov dl, MENU_MSG1_X
-    mov dh, MENU_MSG1_Y
+    mov POS_FN_COL_REG, MENU_MSG1_X
+    mov POS_FN_ROW_REG, MENU_MSG1_Y
     int 10h
     
     mov ah, PRINT_STR_FN
@@ -550,8 +560,8 @@ WriteMenu:
     
     mov ah, POS_FN
     xor bx, bx
-    mov dl, MENU_MSG2_X
-    mov dh, MENU_MSG2_Y
+    mov POS_FN_COL_REG, MENU_MSG2_X
+    mov POS_FN_ROW_REG, MENU_MSG2_Y
     int 10h
     
     mov ah, PRINT_STR_FN
@@ -560,8 +570,8 @@ WriteMenu:
 
     mov ah, POS_FN
     xor bx, bx
-    mov dl, MENU_MSG3_X
-    mov dh, MENU_MSG3_Y
+    mov POS_FN_COL_REG, MENU_MSG3_X
+    mov POS_FN_ROW_REG, MENU_MSG3_Y
     int 10h
     
     mov ah, PRINT_STR_FN
@@ -575,8 +585,8 @@ WriteHelp:
 
     mov ah, POS_FN
     xor bx, bx
-    mov dl, HELP_MENU_MSG1_X
-    mov dh, HELP_MENU_MSG1_Y
+    mov POS_FN_COL_REG, HELP_MENU_MSG1_X
+    mov POS_FN_ROW_REG, HELP_MENU_MSG1_Y
     int 10h
 
     mov ah, PRINT_STR_FN
@@ -585,8 +595,8 @@ WriteHelp:
 
     mov ah, POS_FN
     xor bx, bx
-    mov dl, HELP_MENU_MSG2_X
-    mov dh, HELP_MENU_MSG2_Y
+    mov POS_FN_COL_REG, HELP_MENU_MSG2_X
+    mov POS_FN_ROW_REG, HELP_MENU_MSG2_Y
     int 10h
 
     mov ah, PRINT_STR_FN
@@ -595,8 +605,8 @@ WriteHelp:
 
     mov ah, POS_FN
     xor bx, bx
-    mov dl, HELP_MENU_RULES_X
-    mov dh, HELP_MENU_RULES_Y
+    mov POS_FN_COL_REG, HELP_MENU_RULES_X
+    mov POS_FN_ROW_REG, HELP_MENU_RULES_Y
     int 10h
 
     mov ah, PRINT_STR_FN
@@ -605,8 +615,8 @@ WriteHelp:
 
     mov ah, POS_FN
     xor bx, bx
-    mov dl, HELP_MENU_BACK_X
-    mov dh, HELP_MENU_BACK_Y
+    mov POS_FN_COL_REG, HELP_MENU_BACK_X
+    mov POS_FN_ROW_REG, HELP_MENU_BACK_Y
     int 10h
 
     mov ah, PRINT_STR_FN
