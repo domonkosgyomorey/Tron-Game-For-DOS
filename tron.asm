@@ -29,7 +29,6 @@ WALL_C equ 10
 
 MIN_DT equ 1
 
-
 GRAPHICS_SEG equ 0a000h
 
 SCREEN_WIDTH equ 320
@@ -68,7 +67,6 @@ LEFT_ARROW equ 75
 RIGHT_ARROW equ 77
 UP_ARROW equ 72
 DOWN_ARROW equ 80
-
 MOVE_SPEED equ 1
 
 Start:
