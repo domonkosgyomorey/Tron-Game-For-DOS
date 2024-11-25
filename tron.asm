@@ -24,13 +24,8 @@ P1C equ 39
 P1_TRAIL_C equ 41
 P2C equ 31
 P2_TRAIL_C equ 52
-
 WALL_C equ 10
-
-MIN_DT equ 1
-
 GRAPHICS_SEG equ 0a000h
-
 SCREEN_WIDTH equ 320
 SCREEN_HEIGHT equ 200
 
@@ -55,20 +50,18 @@ SCORE_MSG_Y_OFFSET equ 2
 
 POS_FN_ROW_REG equ dh
 POS_FN_COL_REG equ dl
-
 RED_BLUE_MSG_X_OFFSET equ 15
 RED_BLUE_MSG_Y_OFFSET equ 0
-
 CONTINUE_MSG_X_OFFSET equ 0
 CONTINUE_MSG_Y_OFFSET equ 22
-
 ESCAPE_CHAR equ 27
 LEFT_ARROW equ 75
 RIGHT_ARROW equ 77
 UP_ARROW equ 72
 DOWN_ARROW equ 80
 MOVE_SPEED equ 1
-
+DIFFICULTY_BEGINNER equ 2
+DIFFICULTY_HARDCORE equ 1
 Start:
     mov ax, Data
     mov ds, ax
@@ -108,6 +101,8 @@ ExitGame:
     int 21h
 
 Game:
+    call ChooseSecondaryMenu
+
     mov al, VGA_VID_MOD
     xor ah, ah
     int 10h
@@ -284,7 +279,8 @@ WaitLoop:
     mov ah, TIMER_FN
     int TIMER_INT
     sub TIMER_LOW_TICK_REG, bx
-    cmp TIMER_LOW_TICK_REG, MIN_DT
+    mov al, deltaT
+    cmp TIMER_LOW_TICK_REG, ax
     jb WaitLoop
     
     pop TIMER_LOW_TICK_REG
@@ -623,6 +619,39 @@ WriteHelp:
 
     ret
 
+ChooseSecondaryMenu:
+    mov ax, CONSOLE_VID_MOD
+    int 10h
+    
+    mov ah, 9
+    mov dx, offset beginner_msg
+    int 21h
+
+    mov ah, POS_FN
+    xor bx, bx
+    mov POS_FN_COL_REG, 0
+    mov POS_FN_ROW_REG, 1
+    int 10h
+
+    mov ah, 9
+    mov dx, offset hardcore_msg
+    int 21h
+
+    xor ax, ax
+    int 16h
+
+    cmp al, '1'
+    jne sk_bgnr
+    mov al, DIFFICULTY_BEGINNER
+    mov deltaT, al
+    ret
+sk_bgnr:
+    cmp al, '2'
+    jne ChooseSecondaryMenu
+    mov al, DIFFICULTY_HARDCORE
+    mov deltaT, al
+    ret
+
 Code    Ends
 
 Data    Segment
@@ -630,6 +659,9 @@ Data    Segment
     menumsg2 db "(2) Help$"
     menumsg3 db "(3) Exit$"
     
+    beginner_msg db "(1) Beginner$"
+    hardcore_msg db "(2) Hardcore$"
+
     p1_won db "Red Won$"
     p2_won db "Blue Won$"
     draw_msg db "Draw$"
@@ -657,6 +689,8 @@ Data    Segment
     
     p2_vx   db 0
     p2_vy   db 0
+
+    deltaT db 1
 Data    Ends
 
 Stack   Segment
